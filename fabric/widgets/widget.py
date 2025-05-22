@@ -130,6 +130,37 @@ class Widget(Gtk.Widget, Service):
         self.add_style_class(classes)
         return
 
+    # Defining the cursor property as per instructions
+    @Property(Gdk.Cursor) # Or GObject.TYPE_PYOBJECT if Gdk.Cursor causes issues with the Property impl.
+    def cursor(self) -> CURSOR_TYPE | Gdk.Cursor | None:
+        return self._cursor
+
+    @cursor.setter
+    def cursor(self, name: CURSOR_TYPE | Gdk.Cursor | None):
+        surface = self.get_native()
+        if not surface and hasattr(self, "get_surface"):
+            surface = self.get_surface()
+
+        if surface:
+            if name is None:
+                new_gdk_cursor = None
+            elif isinstance(name, Gdk.Cursor):
+                new_gdk_cursor = name
+            elif isinstance(name, str):  # CURSOR_TYPE is a Literal of strings
+                try:
+                    new_gdk_cursor = Gdk.Cursor.new_from_name(name, None)
+                except Exception as e:
+                    logger.error(f"Failed to create cursor from name '{name}': {e}")
+                    new_gdk_cursor = None # Fallback to default or no change
+            else:
+                logger.warning(f"Invalid type for cursor: {type(name)}")
+                new_gdk_cursor = None # Fallback
+
+            surface.set_cursor(new_gdk_cursor)
+            self._cursor = new_gdk_cursor # Store the Gdk.Cursor object
+        # else:
+        #    logger.warning(f"Could not get Gdk.Surface to set cursor for widget {self.get_name() if hasattr(self, 'get_name') else self}")
+
     def __init__(
         self,
         name: str | None = None,
@@ -228,52 +259,8 @@ class Widget(Gtk.Widget, Service):
         )
         return
 
-    @overload
-    def set_cursor(
-        self,
-        cursor: CURSOR_TYPE | Gdk.CursorType | Gdk.Cursor | None,
-        pixbuf: None = None,
-        x_offset: int = 0,
-        y_offset: int = 0,
-    ): ...
-
-    @overload
-    def set_cursor(
-        self,
-        cursor: None,
-        pixbuf: GdkPixbuf.Pixbuf | None = None,
-        x_offset: int = 0,
-        y_offset: int = 0,
-    ): ...
-
-    def set_cursor(
-        self,
-        cursor: CURSOR_TYPE | Gdk.CursorType | Gdk.Cursor | None,
-        pixbuf: GdkPixbuf.Pixbuf | None = None,
-        x_offset: int = 0,
-        y_offset: int = 0,
-    ):
-        display = Gdk.Display.get_default()
-        window = self.get_window()
-        if display is None or window is None:
-            raise RuntimeError(
-                f"can't set new cursor, one of `display` or `window` is None ({display}, {window})"
-            )
-        elif not self.is_hovered():
-            return window.set_cursor(Gdk.Cursor.new_from_name(display, "default"))
-
-        if pixbuf is not None:
-            cursor = Gdk.Cursor.new_from_pixbuf(display, pixbuf, x_offset, y_offset)
-        elif isinstance(cursor, Gdk.Cursor):
-            pass
-        elif isinstance(cursor, str):
-            cursor = Gdk.Cursor.new_from_name(display, cursor)
-        elif isinstance(cursor, Gdk.CursorType):
-            cursor = Gdk.Cursor.new_for_display(display, cursor)
-        else:
-            cursor = Gdk.Cursor.new_from_name(display, "default")
-
-        return window.set_cursor(cursor)
+    # The old set_cursor method and its overloads are now effectively replaced by the property setter.
+    # Removing them to avoid confusion and duplication.
 
     def is_hovered(self, event: Gdk.EventAny | None = None) -> bool:
         x, y = self.get_pointer()  # type: ignore
