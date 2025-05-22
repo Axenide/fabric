@@ -6,7 +6,7 @@ from collections.abc import Iterable
 from fabric.widgets.widget import Widget
 from fabric.utils import compile_css
 
-gi.require_version("Gtk", "3.0")
+gi.require_version("Gtk", "4.0")
 gi.require_version("Rsvg", "2.0")
 from gi.repository import Rsvg, Gtk
 

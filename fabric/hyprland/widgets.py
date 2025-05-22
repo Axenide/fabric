@@ -11,7 +11,7 @@ from fabric.widgets.eventbox import EventBox
 from fabric.hyprland.service import Hyprland, HyprlandEvent
 from fabric.utils.helpers import FormattedString, bulk_connect, truncate
 
-gi.require_version("Gtk", "3.0")
+gi.require_version("Gtk", "4.0")
 from gi.repository import Gtk, Gdk
 
 

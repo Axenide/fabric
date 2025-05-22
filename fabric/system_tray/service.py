@@ -4,7 +4,7 @@ from typing import NamedTuple, Literal, Any, cast
 from fabric.core.service import Service, Signal, Property
 from fabric.utils.helpers import load_dbus_xml, bulk_connect, get_enum_member
 
-gi.require_version("Gtk", "3.0")
+gi.require_version("Gtk", "4.0")
 gi.require_version("DbusmenuGtk3", "0.4")
 from gi.repository import (
     Gtk,

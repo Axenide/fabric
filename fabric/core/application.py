@@ -16,7 +16,7 @@ from fabric.utils.helpers import (
     compile_css,
 )
 
-gi.require_version("Gtk", "3.0")
+gi.require_version("Gtk", "4.0")
 from gi.repository import Gtk, Gdk, GLib, Gio
 
 
@@ -377,7 +377,12 @@ class Application(Gtk.Application, Service):
             return
 
     def open_inspector(self):
-        return Gtk.Window.set_interactive_debugging(True)  # type: ignore
+        # In GTK4, interactive debugging is enabled by setting the GTK_DEBUG environment variable.
+        # For example: GTK_DEBUG=interactive
+        # The Gtk.Window.set_interactive_debugging() method has been removed.
+        # This method is now a no-op but kept for conceptual compatibility if needed.
+        logger.info("Interactive debugging (GTK Inspector) is now enabled via the GTK_DEBUG environment variable (e.g., GTK_DEBUG=interactive).")
+        return
 
     @staticmethod
     def validate_name(name: str) -> bool:
@@ -426,8 +431,8 @@ class Application(Gtk.Application, Service):
         # well, i have to manually bind this
         self._style_providers.append(provider)
         self.notify("style-providers")
-        return Gtk.StyleContext.add_provider_for_screen(  # type: ignore
-            Gdk.Screen.get_default(),
+        return Gtk.StyleContext.add_provider_for_display(  # type: ignore
+            Gdk.Display.get_default(), # Changed Gdk.Screen to Gdk.Display
             provider,
             (
                 {
@@ -443,8 +448,8 @@ class Application(Gtk.Application, Service):
         )
 
     def remove_style_provider(self, provider: Gtk.StyleProvider) -> None:
-        screen = Gdk.Screen.get_default()
-        return Gtk.StyleContext.remove_provider_for_screen(screen, provider)  # type: ignore
+        display = Gdk.Display.get_default() # Changed Gdk.Screen to Gdk.Display
+        return Gtk.StyleContext.remove_provider_for_display(display, provider)  # type: ignore
 
     def reset_styles(self) -> None:
         for style_provider in self.style_providers:

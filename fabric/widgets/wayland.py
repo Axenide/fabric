@@ -9,15 +9,15 @@ from fabric.core.service import Property
 from fabric.widgets.window import Window
 from fabric.utils.helpers import extract_css_values, get_enum_member
 
-gi.require_version("Gtk", "3.0")
+gi.require_version("Gtk", "4.0")
 from gi.repository import Gtk, Gdk
 
 try:
-    gi.require_version("GtkLayerShell", "0.1")
-    from gi.repository import GtkLayerShell
+    gi.require_version("Gtk4LayerShell", "1.0")
+    from gi.repository import Gtk4LayerShell as GtkLayerShell
 except:
     raise ImportError(
-        "looks like we don't have gtk-layer-shell installed, make sure to install it first (as well as using wayland)"
+        "looks like we don't have gtk4-layer-shell installed, make sure to install it first (as well as using wayland)"
     )
 
 
@@ -81,11 +81,11 @@ class WaylandWindow(Window):
         self._exclusivity = value
         match value:
             case WaylandWindowExclusivity.NORMAL:
-                return GtkLayerShell.set_exclusive_zone(self, True)
+                return GtkLayerShell.set_exclusive_zone(self, -1)
             case WaylandWindowExclusivity.AUTO:
                 return GtkLayerShell.auto_exclusive_zone_enable(self)
             case _:
-                return GtkLayerShell.set_exclusive_zone(self, False)
+                return GtkLayerShell.set_exclusive_zone(self, 0)
 
     @Property(bool, "read-write", default_value=False)
     def pass_through(self) -> bool:
@@ -105,7 +105,7 @@ class WaylandWindow(Window):
         default_value=GtkLayerShell.KeyboardMode.NONE,
     )
     def keyboard_mode(self) -> GtkLayerShell.KeyboardMode:
-        return self._keyboard_mode
+        return GtkLayerShell.get_keyboard_mode(self)
 
     @keyboard_mode.setter
     def keyboard_mode(
@@ -114,7 +114,6 @@ class WaylandWindow(Window):
             "none",
             "exclusive",
             "on-demand",
-            "entry-number",
         ]
         | GtkLayerShell.KeyboardMode,
     ):
@@ -178,26 +177,23 @@ class WaylandWindow(Window):
             GtkLayerShell.set_margin(self, edge, mrgv)
         return
 
-    @Property(object, "read-write")
-    def keyboard_mode(self):
-        kb_mode = GtkLayerShell.get_keyboard_mode(self)
-        if GtkLayerShell.get_keyboard_interactivity(self):
-            kb_mode = GtkLayerShell.KeyboardMode.EXCLUSIVE
-        return kb_mode
+    @Property(object, "read-write") # This is a duplicate property definition. Will be removed.
+    def keyboard_mode(self): # This is a duplicate property definition. Will be removed.
+        return GtkLayerShell.get_keyboard_mode(self) # This is a duplicate property definition. Will be removed.
 
-    @keyboard_mode.setter
-    def keyboard_mode(
-        self,
-        value: Literal["none", "exclusive", "on-demand"] | GtkLayerShell.KeyboardMode,
-    ):
-        return GtkLayerShell.set_keyboard_mode(
-            self,
-            get_enum_member(
-                GtkLayerShell.KeyboardMode,
-                value,
-                default=GtkLayerShell.KeyboardMode.NONE,
-            ),
-        )
+    @keyboard_mode.setter # This is a duplicate property definition. Will be removed.
+    def keyboard_mode( # This is a duplicate property definition. Will be removed.
+        self, # This is a duplicate property definition. Will be removed.
+        value: Literal["none", "exclusive", "on-demand"] | GtkLayerShell.KeyboardMode, # This is a duplicate property definition. Will be removed.
+    ): # This is a duplicate property definition. Will be removed.
+        return GtkLayerShell.set_keyboard_mode( # This is a duplicate property definition. Will be removed.
+            self, # This is a duplicate property definition. Will be removed.
+            get_enum_member( # This is a duplicate property definition. Will be removed.
+                GtkLayerShell.KeyboardMode, # This is a duplicate property definition. Will be removed.
+                value, # This is a duplicate property definition. Will be removed.
+                default=GtkLayerShell.KeyboardMode.NONE, # This is a duplicate property definition. Will be removed.
+            ), # This is a duplicate property definition. Will be removed.
+        ) # This is a duplicate property definition. Will be removed.
 
     def __init__(
         self,
@@ -208,7 +204,7 @@ class WaylandWindow(Window):
         exclusivity: Literal["auto", "normal", "none"]
         | WaylandWindowExclusivity = WaylandWindowExclusivity.NONE,
         keyboard_mode: Literal["none", "exclusive", "on-demand"]
-        | GtkLayerShell.KeyboardMode = GtkLayerShell.KeyboardMode.NONE,
+        | GtkLayerShell.KeyboardMode = GtkLayerShell.KeyboardMode.NONE, # Default is already NONE
         pass_through: bool = False,
         monitor: int | Gdk.Monitor | None = None,
         title: str = "fabric",
@@ -251,7 +247,7 @@ class WaylandWindow(Window):
             size,
             **kwargs,
         )
-        self._layer = GtkLayerShell.Layer.ENTRY_NUMBER
+        self._layer = GtkLayerShell.Layer.TOP
         self._keyboard_mode = GtkLayerShell.KeyboardMode.NONE
         self._anchor = anchor
         self._exclusivity = WaylandWindowExclusivity.NONE
@@ -274,10 +270,10 @@ class WaylandWindow(Window):
         self.show_all() if all_visible is True else self.show() if visible is True else None
 
     def steal_input(self) -> None:
-        return GtkLayerShell.set_keyboard_interactivity(self, True)
+        return GtkLayerShell.set_keyboard_mode(self, GtkLayerShell.KeyboardMode.EXCLUSIVE)
 
     def return_input(self) -> None:
-        return GtkLayerShell.set_keyboard_interactivity(self, False)
+        return GtkLayerShell.set_keyboard_mode(self, GtkLayerShell.KeyboardMode.NONE)
 
     # custom overrides
     def show(self) -> None:

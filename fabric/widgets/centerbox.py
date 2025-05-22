@@ -5,7 +5,7 @@ from fabric.core.service import Property
 from fabric.widgets.box import Box
 from fabric.utils.helpers import get_enum_member
 
-gi.require_version("Gtk", "3.0")
+gi.require_version("Gtk", "4.0")
 from gi.repository import Gtk
 
 

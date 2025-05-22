@@ -4,7 +4,7 @@ from collections.abc import Iterable
 from fabric.widgets.widget import Widget
 from fabric.utils.helpers import get_enum_member
 
-gi.require_version("Gtk", "3.0")
+gi.require_version("Gtk", "4.0")
 from gi.repository import Gtk, Pango
 
 

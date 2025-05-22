@@ -4,14 +4,14 @@ from collections.abc import Iterable
 from fabric.widgets.widget import EVENT_TYPE
 from fabric.widgets.container import Container
 
-gi.require_version("Gtk", "3.0")
+gi.require_version("Gtk", "4.0")
 from gi.repository import Gtk, Gdk
 
 
-class EventBox(Gtk.EventBox, Container):
+class EventBox(Gtk.Box, Container): # Changed Gtk.EventBox to Gtk.Box
     def __init__(
         self,
-        events: EVENT_TYPE
+        events: EVENT_TYPE # This parameter will be handled differently or removed later
         | Gdk.EventMask
         | Iterable[EVENT_TYPE | Gdk.EventMask]
         | None = None,
@@ -34,10 +34,13 @@ class EventBox(Gtk.EventBox, Container):
         size: Iterable[int] | int | None = None,
         **kwargs,
     ):
-        Gtk.EventBox.__init__(self)  # type: ignore
+        Gtk.Box.__init__(self) # Changed Gtk.EventBox to Gtk.Box
         Container.__init__(
             self,
-            child,
+            # For Gtk.Box, the child is typically added after initialization
+            # or via specific packing methods. We'll add it later if provided.
+            None, # Child will be handled by Container logic or explicitly added
+            name,
             name,
             visible,
             all_visible,
@@ -52,4 +55,10 @@ class EventBox(Gtk.EventBox, Container):
             size,
             **kwargs,
         )
-        self.add_events(events) if events is not None else None
+        # self.add_events(events) if events is not None else None # Removed add_events call
+        # If a child is provided, add it to the Gtk.Box
+        if child is not None:
+            self.append(child) # Gtk.Box uses append (or pack_start, pack_end)
+
+        # TODO: Process 'events' to add appropriate Gtk.EventControllers
+        # For now, this functionality is deferred.

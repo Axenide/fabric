@@ -6,7 +6,7 @@ from fabric.core.service import Property
 from fabric.widgets.container import Container
 from fabric.utils.helpers import get_enum_member, clamp
 
-gi.require_version("Gtk", "3.0")
+gi.require_version("Gtk", "4.0")
 from gi.repository import Gdk, Gtk
 
 

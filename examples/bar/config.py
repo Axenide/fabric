@@ -1,4 +1,5 @@
 import psutil
+from gi.repository import Gtk # Added Gtk import
 from fabric import Application
 from fabric.widgets.box import Box
 from fabric.widgets.label import Label
@@ -36,27 +37,29 @@ class VolumeWidget(Box):
             name="volume-progress-bar", pie=True, size=24
         )
 
-        self.event_box = EventBox(
-            events="scroll",
-            child=Overlay(
-                child=self.progress_bar,
-                overlays=Label(
-                    label="",
-                    style="margin: 0px 6px 0px 0px; font-size: 12px",  # to center the icon glyph
-                ),
+        self.overlay_widget = Overlay( # Renamed event_box to overlay_widget, and it's now a direct Overlay
+            child=self.progress_bar,
+            overlays=Label(
+                label="",
+                style="margin: 0px 6px 0px 0px; font-size: 12px",  # to center the icon glyph
             ),
         )
 
-        self.audio.connect("notify::speaker", self.on_speaker_changed)
-        self.event_box.connect("scroll-event", self.on_scroll)
-        self.add(self.event_box)
+        # Add EventControllerScroll for GTK4
+        scroll_controller = Gtk.EventControllerScroll.new()
+        scroll_controller.set_flags(Gtk.EventControllerScrollFlags.VERTICAL) # Only vertical scroll
+        scroll_controller.connect("scroll", self.on_scroll)
+        self.overlay_widget.add_controller(scroll_controller)
 
-    def on_scroll(self, _, event):
-        match event.direction:
-            case 0:
-                self.audio.speaker.volume += 8
-            case 1:
-                self.audio.speaker.volume -= 8
+        self.audio.connect("notify::speaker", self.on_speaker_changed)
+        # self.event_box.connect("scroll-event", self.on_scroll) # Old connection removed
+        self.add(self.overlay_widget) # Add the overlay_widget directly
+
+    def on_scroll(self, controller, dx, dy): # Signature changed for EventControllerScroll
+        if dy < 0: # Corresponds to Gdk.ScrollDirection.UP (scroll up)
+            self.audio.speaker.volume += 8
+        elif dy > 0: # Corresponds to Gdk.ScrollDirection.DOWN (scroll down)
+            self.audio.speaker.volume -= 8
         return
 
     def on_speaker_changed(self, *_):

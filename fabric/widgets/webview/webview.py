@@ -8,7 +8,7 @@ from typing import Literal, overload
 from fabric.widgets.widget import Widget
 from fabric.utils.helpers import get_relative_path
 
-gi.require_version("Gtk", "3.0")
+gi.require_version("Gtk", "4.0")
 gi.require_version("WebKit2", "4.1")
 from gi.repository import Gtk, GLib, WebKit2
 

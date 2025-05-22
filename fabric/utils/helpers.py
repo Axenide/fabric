@@ -25,7 +25,7 @@ from typing import (
     Any,
 )
 
-gi.require_version("Gtk", "3.0")
+gi.require_version("Gtk", "4.0")
 from gi.repository import Gtk, Gdk, GdkPixbuf, GObject, Gio, GLib
 
 P = ParamSpec("P")
@@ -885,9 +885,11 @@ def set_stylesheet_from_file(file_path: str, compiled: bool = True) -> None:
         provider.load_from_data(bytearray(compile_css(file), "utf-8"))  # type: ignore
     else:
         provider.load_from_path(file_path)
-    screen = Gdk.Screen.get_default()
-    context = Gtk.StyleContext()
-    context.add_provider_for_screen(screen, provider, Gtk.STYLE_PROVIDER_PRIORITY_USER)
+    display = Gdk.Display.get_default() # Changed Gdk.Screen to Gdk.Display
+    # For GTK4, style providers are typically added to Gtk.Display directly.
+    # The Gtk.StyleContext instance is not used with add_provider_for_display in this manner.
+    # This function is deprecated, so the change primarily notes the Display API.
+    Gtk.StyleContext.add_provider_for_display(display, provider, Gtk.STYLE_PROVIDER_PRIORITY_USER)
     return
 
 
@@ -899,9 +901,10 @@ def set_stylesheet_from_string(css_string: str, compiled: bool = True) -> None:
         provider.load_from_data(bytearray(compile_css(css_string), "utf-8"))
     else:
         provider.load_from_data(bytearray(css_string, "utf-8"))
-    screen = Gdk.Screen.get_default()
-    context = Gtk.StyleContext()
-    context.add_provider_for_screen(screen, provider, Gtk.STYLE_PROVIDER_PRIORITY_USER)
+    display = Gdk.Display.get_default() # Changed Gdk.Screen to Gdk.Display
+    # Similar to set_stylesheet_from_file, this function is deprecated.
+    # The Gtk.StyleContext instance is not used with add_provider_for_display in this manner.
+    Gtk.StyleContext.add_provider_for_display(display, provider, Gtk.STYLE_PROVIDER_PRIORITY_USER)
     return
 
 

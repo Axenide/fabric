@@ -4,7 +4,7 @@ from collections.abc import Iterable
 from fabric.core.service import Property
 from fabric.widgets.widget import Widget
 
-gi.require_version("Gtk", "3.0")
+gi.require_version("Gtk", "4.0")
 from gi.repository import Gtk
 
 

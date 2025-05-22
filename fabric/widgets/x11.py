@@ -7,7 +7,7 @@ from fabric.core.service import Property
 from fabric.widgets.window import Window
 from fabric.utils import get_enum_member, extract_css_values, idle_add
 
-gi.require_version("Gtk", "3.0")
+gi.require_version("Gtk", "4.0")
 from gi.repository import Gtk, Gdk
 
 try:

@@ -3,7 +3,7 @@ from typing import Literal
 from collections.abc import Iterable
 from fabric.widgets.widget import Widget
 
-gi.require_version("Gtk", "3.0")
+gi.require_version("Gtk", "4.0")
 from gi.repository import Gtk
 
 
