@@ -170,7 +170,7 @@ class DesktopApp:
         self, app: Gio.DesktopAppInfo, icon_theme: Gtk.IconTheme | None = None
     ):
         self._app: Gio.DesktopAppInfo = app
-        self._icon_theme = icon_theme or Gtk.IconTheme.get_default()
+        self._icon_theme = icon_theme or Gtk.IconTheme.get_for_display(Gdk.Display.get_default())
         self._pixbuf: GdkPixbuf.Pixbuf | None = None
         self.name = app.get_name()  # type: ignore
         self.generic_name = app.get_generic_name()  # type: ignore
@@ -190,8 +190,7 @@ class DesktopApp:
         self,
         size: int = 48,
         default_icon: str | None = "image-missing",
-        flags: Gtk.IconLookupFlags = Gtk.IconLookupFlags.FORCE_REGULAR
-        | Gtk.IconLookupFlags.FORCE_SIZE,  # type: ignore
+        flags: Gtk.IconLookupFlags = Gtk.IconLookupFlags.NONE,  # type: ignore # Changed to NONE
     ) -> GdkPixbuf.Pixbuf | None:
         """
         get a pixbuf from the icon (if any)
@@ -236,7 +235,7 @@ def get_desktop_applications(include_hidden: bool = False) -> list[DesktopApp]:
     :return: a list of all desktop applications
     :rtype: list[DesktopApp]
     """
-    icon_theme = Gtk.IconTheme.get_default()
+    icon_theme = Gtk.IconTheme.get_for_display(Gdk.Display.get_default()) # Changed get_default to get_for_display
     return [
         DesktopApp(app, icon_theme)
         for app in Gio.DesktopAppInfo.get_all()
